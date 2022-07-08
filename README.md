@@ -24,24 +24,24 @@ import laravel from 'vite-plugin-laravel'
 import run from 'vite-plugin-run'
 
 export default defineConfig({
-	plugins: [
-		laravel(),
-		vue(),
-		run([
-			{
-				startup: true,
-				name: 'typescript transform',
-				run: ['php', 'artisan', 'typescript:transform'],
-				condition: (file) => file.includes('Data.php'),
-			},
-			{
-				startup: true,
-				name: 'build routes',
-				run: ['php', 'artisan', 'routes:generate'],
-				condition: (file) => file.includes('/routes/'),
-			}
-		]),
-	],
+    plugins: [
+        laravel(),
+            vue(),
+            run([
+                {
+                    startup: true,
+                    name: 'typescript transform',
+                    run: ['php', 'artisan', 'typescript:transform'],
+                    condition: (file) => file.includes('Data.php'),
+                },
+                {
+                    startup: true,
+                    name: 'build routes',
+                    run: ['php', 'artisan', 'routes:generate'],
+                    condition: (file) => file.includes('/routes/'),
+                }
+            ]),
+    ],
 })
 ```
 
