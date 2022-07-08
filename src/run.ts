@@ -46,7 +46,7 @@ export function run(options: Options = []): Plugin {
 			debug('Resolved options:', resolvedOptions)
 
 			resolvedOptions.input.forEach((runner) => {
-				if (runner.startup === true) {
+				if (runner.startup === true || runner.condition === undefined) {
 					handleRunnerCommand(resolvedOptions, runner)
 				}
 			})
@@ -69,7 +69,7 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 	const file = parameters.file.replaceAll('\\', '/')
 
 	options.input.forEach((runner) => {
-		if (!runner.condition(file)) {
+		if (!runner.condition?.(file)) {
 			return
 		}
 

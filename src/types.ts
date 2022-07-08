@@ -38,13 +38,15 @@ export interface Runner {
    */
 	name: string
 
-	/** Whether to run when starting the dev server or building for production. */
+	/**
+	 * Whether to run when starting the dev server or building for production.
+	 */
 	startup?: boolean
 
 	/**
-	 * Condition for the handler to run.
+	 * Condition for the handler to run when a file changes.
 	 */
-	condition: (file: string) => boolean
+	condition?: (file: string) => boolean
 
 	/**
 	 * Executed when a watched file meets the condition.
