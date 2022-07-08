@@ -51,16 +51,29 @@ When a file in your project changes, its path will be given as an argument to `c
 
 &nbsp;
 
+## Plugin options
+
+
+| Option    | Type       | Description                                             | Default |
+| --------- | ---------- | ------------------------------------------------------- | ------- |
+| `silent`  | `bool`     | Whether to hide the commands output in the console      | `true`  |
+| `skipDts` | `bool`     | Whether to skip HMR reloads when a `.d.ts` file changes | `true`  |
+| `input`   | `Runner[]` | List of runners                                         | `[]`    |
+
+Optionally, you can directly pass a runner or a list of runner to the plugin options.
+
+&nbsp;
+
 ## Runner options
 
-| Option          | Type                           | Description                                                                | Default  |
-| --------------- | ------------------------------ | -------------------------------------------------------------------------- | -------- |
-| `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `false`  |
-| `name`          | `string`                       | An identifier for the runner, used in logs                                 | Required |
-| `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner | Required |
-| `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           | Required |
-| `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          | Required |
-| `delay`         | `number`                       | Delay before the command is executed                                       | `50`     |
+| Option          | Type                           | Description                                                                | Default |
+| --------------- | ------------------------------ | -------------------------------------------------------------------------- | ------- |
+| `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `false` |
+| `name`          | `string`                       | An identifier for the runner, used in logs                                 |         |
+| `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner |         |
+| `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |
+| `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          |         |
+| `delay`         | `number`                       | Delay before the command is executed                                       | `50`    |
 
 <p align="center">
 	<br />
