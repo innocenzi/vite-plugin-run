@@ -79,5 +79,5 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 	·
 	<br />
 	<br />
-	<sub>Built with ❤︎ by <a href="https://github.com/enzoinnocenzi">Enzo Innocenzi</a>
+	<sub>Built with ❤︎ by <a href="https://twitter.com/enzoinnocenzi">Enzo Innocenzi</a>
 </p>
