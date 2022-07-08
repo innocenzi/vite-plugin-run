@@ -2,8 +2,6 @@
 <h2 align="center">Runner plugin for Vite</h2>
 
 <p align="center">
-	<a href="https://github.com/innocenzi/vite-plugin-run/actions/workflows/test.yaml"><img alt="Status" src="https://github.com/innocenzi/vite-plugin-run/actions/workflows/test.yaml/badge.svg"></a>
-	<span>&nbsp;</span>
 	<a href="https://github.com/innocenzi/vite-plugin-run/releases"><img alt="version" src="https://img.shields.io/github/v/release/innocenzi/vite-plugin-run?include_prereleases&label=version&logo=github&logoColor=white"></a>
 	<br />
 	<br />
