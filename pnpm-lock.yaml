@@ -1,19 +1,23 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@antfu/utils': ^0.5.2
   '@innocenzi/eslint-config': ^0.12.0
   '@types/debug': ^4.1.7
   '@types/node': ^18.0.3
   bumpp: ^8.2.1
   debug: ^4.3.4
   eslint: ^8.19.0
+  picocolors: ^1.0.0
   typescript: ^4.7.4
   unbuild: ^0.7.4
   vite: ^2.9.14
   vitest: ^0.17.1
 
 dependencies:
+  '@antfu/utils': 0.5.2
   debug: 4.3.4
+  picocolors: 1.0.0
 
 devDependencies:
   '@innocenzi/eslint-config': 0.12.0_4x5o4skxv6sl53vpwefgt23khm
@@ -35,6 +39,10 @@ packages:
       '@jridgewell/gen-mapping': 0.1.1
       '@jridgewell/trace-mapping': 0.3.14
     dev: true
+
+  /@antfu/utils/0.5.2:
+    resolution: {integrity: sha512-CQkeV+oJxUazwjlHD0/3ZD08QWKuGQkhnrKo3e6ly5pd48VUpXbb77q0xMU4+vc2CkJnDS02Eq/M9ugyX20XZA==}
+    dev: false
 
   /@babel/code-frame/7.18.6:
     resolution: {integrity: sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q==}
@@ -2584,7 +2592,6 @@ packages:
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
-    dev: true
 
   /picomatch/2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}

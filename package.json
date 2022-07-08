@@ -25,6 +25,7 @@
   "bugs": "https://github.com/innocenzi/vite-plugin-run/issues",
   "scripts": {
     "prepare": "npm run build",
+    "dev": "unbuild --stub",
     "build": "unbuild",
     "test": "vitest",
     "lint": "eslint src/*.ts",
@@ -42,6 +43,8 @@
     "vitest": "^0.17.1"
   },
   "dependencies": {
-    "debug": "^4.3.4"
+    "@antfu/utils": "^0.5.2",
+    "debug": "^4.3.4",
+    "picocolors": "^1.0.0"
   }
 }
