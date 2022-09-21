@@ -40,6 +40,7 @@ export interface Runner {
 
 	/**
 	 * Whether to run when starting the dev server or building for production.
+	 * @default true
 	 */
 	startup?: boolean
 

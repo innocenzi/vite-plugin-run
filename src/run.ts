@@ -46,7 +46,7 @@ export function run(options: Options = []): Plugin {
 			debug('Resolved options:', resolvedOptions)
 
 			resolvedOptions.input.forEach((runner) => {
-				if (runner.startup === true || runner.condition === undefined) {
+				if (runner.startup !== false || runner.condition === undefined) {
 					handleRunnerCommand(resolvedOptions, runner)
 				}
 			})

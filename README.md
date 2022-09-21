@@ -24,13 +24,11 @@ export default defineConfig({
       vue(),
       run([
         {
-          startup: true,
           name: 'typescript transform',
           run: ['php', 'artisan', 'typescript:transform'],
           condition: (file) => file.includes('Data.php'),
         },
         {
-          startup: true,
           name: 'build routes',
           run: ['php', 'artisan', 'routes:generate'],
           condition: (file) => file.includes('/routes/'),
@@ -61,7 +59,7 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 
 | Option          | Type                           | Description                                                                | Default |
 | --------------- | ------------------------------ | -------------------------------------------------------------------------- | ------- |
-| `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `false` |
+| `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `true`  |
 | `name`          | `string`                       | An identifier for the runner, used in logs                                 |         |
 | `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner |         |
 | `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |
