@@ -18,6 +18,8 @@
 Install `vite-plugin-run` and add it to your Vite configuration:
 
 ```ts
+import { run } from 'vite-plugin-run'
+
 export default defineConfig({
   plugins: [
     laravel(),
