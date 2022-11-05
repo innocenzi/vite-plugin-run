@@ -36,7 +36,7 @@ export interface Runner {
 	/**
    * Name to identify the runner.
    */
-	name: string
+	name?: string
 
 	/**
 	 * Whether to run when starting the dev server or building for production.
