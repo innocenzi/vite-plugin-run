@@ -159,7 +159,7 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 }
 
 function getRunnerName(runner: Runner) {
-	return c.bold(`[${`${runner.name}` ?? getRunnerCommand(runner) ?? '<runner>'}]`)
+	return c.bold(`[${runner.name || getRunnerCommand(runner) || '<runner>'}]`)
 }
 
 function getRunnerArguments(runner: Runner): string[] {
