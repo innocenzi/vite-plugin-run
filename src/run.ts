@@ -64,6 +64,8 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 	const file = parameters.file.replaceAll('\\', '/')
 
 	options.input.forEach((runner) => {
+		const name = getRunnerName(runner)
+
 		if (runner.condition && !runner.condition(file)) {
 			debug(`${name} condition did not pass for ${c.gray(parameters.file)}`)
 			return
@@ -73,10 +75,20 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 			? [runner.pattern!].filter(Boolean)
 			: runner.pattern
 
-		for (const pattern of patterns) {
-			if (!minimatch(file, path.resolve(parameters.server.config.root, pattern))) {
-				return
+		const patternMatch = patterns.some((pattern) => {
+			pattern = path.resolve(parameters.server.config.root, pattern)
+
+			if (minimatch(file, pattern)) {
+				debug(`${name} pattern ${pattern} matched for ${c.gray(parameters.file)}`)
+				return true
 			}
+
+			return false
+		})
+
+		if (!patternMatch) {
+			debug(`${name} no pattern matched for ${c.gray(parameters.file)} (${patterns.map((p) => path.resolve(parameters.server.config.root, p))})`)
+			return
 		}
 
 		handleRunner(runner, options, parameters)
