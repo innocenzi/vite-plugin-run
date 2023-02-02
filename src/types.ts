@@ -29,7 +29,6 @@ export type RunnerHandler = (parameters: RunnerHandlerParameters) => void
 export interface RunnerHandlerParameters {
 	file: string
 	server: ViteDevServer
-	type: 'add' | 'change' | 'unlink'
 }
 
 export interface Runner {
@@ -50,6 +49,11 @@ export interface Runner {
 	condition?: (file: string) => boolean
 
 	/**
+	 * File changes must correspond to the given minimatch pattern.
+	 */
+	pattern?: string | string[]
+
+	/**
 	 * Executed when a watched file meets the condition.
 	 */
 	onFileChanged?: RunnerHandler
@@ -64,4 +68,10 @@ export interface Runner {
    * @default 50 ms
    */
 	delay?: number
+
+	/**
+	 * Delay before the handler can be executed again (in ms)
+	 * @default 500 ms
+	 */
+	throttle?: number
 }

@@ -64,9 +64,11 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 | `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `true`  |
 | `name`          | `string`                       | An identifier for the runner, used in logs                                 |         |
 | `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner |         |
+| `pattern`       | `string` or `string[]`         | A minimatch pattern which files must match                                 |         |
 | `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |
 | `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          |         |
 | `delay`         | `number`                       | Delay before the command is executed                                       | `50`    |
+| `throttle`      | `number`                       | Delay before the command can be re-executed                                | `50`    |
 
 <p align="center">
 	<br />

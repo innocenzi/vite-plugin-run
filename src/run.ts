@@ -1,20 +1,19 @@
 import { spawn } from 'node:child_process'
+import path from 'node:path'
 import { loadEnv, Plugin } from 'vite'
 import makeDebugger from 'debug'
 import c from 'picocolors'
 import { toArray } from '@antfu/utils'
+import { minimatch } from 'minimatch'
 import type { Options, ResolvedRunOptions, Runner, RunnerHandlerParameters } from './types'
 
 const PLUGIN_NAME = 'vite:plugin:run'
 const debug = makeDebugger(PLUGIN_NAME)
+const throttles: Set<string> = new Set()
 
 function warn(prefix: string, message: string) {
 	process.stdout.write(c.bold(`${c.yellow(`(!) ${prefix}`)} ${message}\n`))
 }
-
-// function log(prefix: string, message: string) {
-// 	process.stdout.write(c.bold(`${c.cyan(`${prefix}`)} ${message}\n`))
-// }
 
 /**
  * Reload when some files are changed.
@@ -51,16 +50,12 @@ export function run(options: Options = []): Plugin {
 				}
 			})
 		},
-		configureServer(server) {
-			server.watcher
-				.on('add', (path) => handleReload(resolvedOptions, { file: path, server, type: 'add' }))
-				.on('change', (path) => handleReload(resolvedOptions, { file: path, server, type: 'change' }))
-				.on('unlink', (path) => handleReload(resolvedOptions, { file: path, server, type: 'unlink' }))
-		},
-		handleHotUpdate({ file }) {
+		handleHotUpdate({ file, server }) {
 			if (resolvedOptions.skipDts && file.endsWith('.d.ts')) {
 				return []
 			}
+
+			handleReload(resolvedOptions, { file, server })
 		},
 	}
 }
@@ -73,12 +68,23 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 			return
 		}
 
-		debug(`${c.gray(file)} changed, applying its handler...`)
+		const patterns = !Array.isArray(runner.pattern)
+			? [runner.pattern!].filter(Boolean)
+			: runner.pattern
+
+		for (const pattern of patterns) {
+			if (!minimatch(file, path.resolve(parameters.server.config.root, pattern))) {
+				return
+			}
+		}
+
 		handleRunner(runner, options, parameters)
 	})
 }
 
 function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
+	debug(`${c.gray(parameters.file)} changed, applying its handler...`)
+
 	try {
 		if (typeof runner.onFileChanged === 'function') {
 			runner.onFileChanged?.(parameters)
@@ -99,9 +105,19 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	}
 
 	const name = getRunnerName(runner)
-	debug(`Running ${name}...`)
 
-	// Run after a delay
+	// Check throttles
+	if (throttles.has(name)) {
+		debug(`${name} is throttled.`)
+		return
+	}
+
+	// Throttles the runner
+	throttles.add(name)
+	setTimeout(() => throttles.delete(name), runner.throttle ?? 500)
+
+	// Runs the runner after the configured delay
+	debug(`Running ${name}...`)
 	setTimeout(() => {
 		const child = spawn(
 			getExecutable(options, getRunnerCommand(runner)),
