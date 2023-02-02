@@ -64,7 +64,8 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 	const file = parameters.file.replaceAll('\\', '/')
 
 	options.input.forEach((runner) => {
-		if (!runner.condition?.(file)) {
+		if (runner.condition && !runner.condition(file)) {
+			debug(`${name} condition did not pass for ${c.gray(parameters.file)}`)
 			return
 		}
 
