@@ -28,7 +28,7 @@ export default defineConfig({
         {
           name: 'typescript transform',
           run: ['php', 'artisan', 'typescript:transform'],
-          condition: (file) => file.includes('Data.php'),
+          pattern: ['app/**/*Data.php', 'app/**/Enums/**/*.php'],
         },
         {
           name: 'build routes',
@@ -39,6 +39,8 @@ export default defineConfig({
   ],
 })
 ```
+
+You can either use a `pattern` or a `condition` to specify how the files changes should be detected.
 
 When a file in your project changes, its path will be given as an argument to `condition`. If the function returns `true`, a shell command described by `run` will be executed.
 
