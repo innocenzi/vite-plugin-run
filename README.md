@@ -64,6 +64,7 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 | Option          | Type                           | Description                                                                | Default |
 | --------------- | ------------------------------ | -------------------------------------------------------------------------- | ------- |
 | `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `true`  |
+| `build`         | `bool`                         | Whether the command should run when Vite builds                            | `true`  |
 | `name`          | `string`                       | An identifier for the runner, used in logs                                 |         |
 | `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner |         |
 | `pattern`       | `string` or `string[]`         | A minimatch pattern which files must match                                 |         |

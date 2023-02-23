@@ -5,6 +5,7 @@ export interface ResolvedRunOptions {
 	silent: boolean
 	skipDts: boolean
 	env: Record<string, any>
+	build: boolean
 }
 
 export interface RunOptions {
@@ -38,10 +39,16 @@ export interface Runner {
 	name?: string
 
 	/**
-	 * Whether to run when starting the dev server or building for production.
+	 * Whether to run when starting the dev server or building for production (if `build` is not `false`).
 	 * @default true
 	 */
 	startup?: boolean
+
+	/**
+	 * Whether to run when building for production.
+	 * @default true
+	 */
+	build?: boolean
 
 	/**
 	 * Condition for the handler to run when a file changes.

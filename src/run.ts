@@ -34,6 +34,7 @@ export function run(options: Options = []): Plugin {
 		env: {},
 		silent: silent ?? true,
 		skipDts: skipDts ?? true,
+		build: false,
 		input: toArray('input' in options
 			? options.input
 			: options as Runner | Runner[]),
@@ -43,6 +44,7 @@ export function run(options: Options = []): Plugin {
 		name: PLUGIN_NAME,
 		configResolved(config) {
 			resolvedOptions.env = loadEnv(config.mode ?? process.env.NODE_ENV ?? 'development', process.cwd(), '')
+			resolvedOptions.build = config.command === 'build'
 
 			debug.default('Given options:', options)
 			debug.default('Resolved options:', resolvedOptions)
@@ -127,6 +129,11 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	}
 
 	const name = getRunnerName(runner)
+
+	if (options.build && runner.build === false) {
+		debug.runner(name, 'Skipping when building.')
+		return
+	}
 
 	// Check throttles
 	if (throttles.has(name)) {
