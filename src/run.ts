@@ -8,8 +8,11 @@ import { minimatch } from 'minimatch'
 import type { Options, ResolvedRunOptions, Runner, RunnerHandlerParameters } from './types'
 
 const PLUGIN_NAME = 'vite:plugin:run'
-const debug = makeDebugger(PLUGIN_NAME)
 const throttles: Set<string> = new Set()
+const debug = {
+	default: makeDebugger(PLUGIN_NAME),
+	runner: (name: string, ...debug: [any]) => makeDebugger(`${PLUGIN_NAME}:${name.replaceAll(' ', ':')}`)(...debug),
+}
 
 function warn(prefix: string, message: string) {
 	process.stdout.write(c.bold(`${c.yellow(`(!) ${prefix}`)} ${message}\n`))
@@ -41,11 +44,11 @@ export function run(options: Options = []): Plugin {
 		configResolved(config) {
 			resolvedOptions.env = loadEnv(config.mode ?? process.env.NODE_ENV ?? 'development', process.cwd(), '')
 
-			debug('Given options:', options)
-			debug('Resolved options:', resolvedOptions)
+			debug.default('Given options:', options)
+			debug.default('Resolved options:', resolvedOptions)
 
 			resolvedOptions.input.forEach((runner) => {
-				if (runner.startup !== false || runner.condition === undefined) {
+				if (runner.startup !== false) {
 					handleRunnerCommand(resolvedOptions, runner)
 				}
 			})
@@ -60,34 +63,40 @@ export function run(options: Options = []): Plugin {
 	}
 }
 
-function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
+function canRunnerRun(runner: Runner, parameters: RunnerHandlerParameters): boolean {
 	const file = parameters.file.replaceAll('\\', '/')
+	const name = getRunnerName(runner)
 
-	options.input.forEach((runner) => {
-		const name = getRunnerName(runner)
+	const patterns = !Array.isArray(runner.pattern)
+		? [runner.pattern!].filter(Boolean)
+		: runner.pattern.filter(Boolean)
 
-		if (runner.condition && !runner.condition(file)) {
-			debug(`${name} condition did not pass for ${c.gray(parameters.file)}`)
-			return
+	const conditionPass = runner.condition?.(file)
+	const patternMatch = patterns.some((pattern) => {
+		pattern = path.resolve(parameters.server.config.root, pattern)
+
+		if (minimatch(file, pattern)) {
+			debug.runner(name, `pattern ${pattern} matched for ${c.gray(parameters.file)}`)
+			return true
 		}
 
-		const patterns = !Array.isArray(runner.pattern)
-			? [runner.pattern!].filter(Boolean)
-			: runner.pattern
+		return false
+	})
 
-		const patternMatch = patterns.some((pattern) => {
-			pattern = path.resolve(parameters.server.config.root, pattern)
+	debug.runner(name, `Patterns ${patternMatch ? 'passed' : 'did not pass'} for ${c.gray(parameters.file)} (${patterns.map((p) => path.resolve(parameters.server.config.root, p))})`)
+	debug.runner(name, `Condition ${conditionPass ? 'passed' : 'did not pass'} for ${c.gray(parameters.file)}`)
 
-			if (minimatch(file, pattern)) {
-				debug(`${name} pattern ${pattern} matched for ${c.gray(parameters.file)}`)
-				return true
-			}
+	if (!patternMatch && !conditionPass) {
+		debug.runner(name, 'Neither condition or pattern passed, skipping.')
+		return false
+	}
 
-			return false
-		})
+	return true
+}
 
-		if (!patternMatch) {
-			debug(`${name} no pattern matched for ${c.gray(parameters.file)} (${patterns.map((p) => path.resolve(parameters.server.config.root, p))})`)
+function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
+	options.input.forEach((runner) => {
+		if (!canRunnerRun(runner, parameters)) {
 			return
 		}
 
@@ -96,7 +105,7 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 }
 
 function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
-	debug(`${c.gray(parameters.file)} changed, applying its handler...`)
+	debug.default(`${c.gray(parameters.file)} changed, applying its handler...`)
 
 	try {
 		if (typeof runner.onFileChanged === 'function') {
@@ -108,7 +117,7 @@ function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: R
 		}
 	} catch (error: any) {
 		warn(PLUGIN_NAME, `Handler failed for ${parameters.file}: ${error.message}`)
-		debug('Full error:', error)
+		debug.default('Full error:', error)
 	}
 }
 
@@ -121,7 +130,7 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 
 	// Check throttles
 	if (throttles.has(name)) {
-		debug(`${name} is throttled.`)
+		debug.runner(name, 'Skipping because of throttling.')
 		return
 	}
 
@@ -130,7 +139,7 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	setTimeout(() => throttles.delete(name), runner.throttle ?? 500)
 
 	// Runs the runner after the configured delay
-	debug(`Running ${name}...`)
+	debug.runner(name, 'Running...')
 	setTimeout(() => {
 		const child = spawn(
 			getExecutable(options, getRunnerCommand(runner)),
@@ -150,16 +159,16 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 
 		child.on('close', (code) => {
 			const result = code === 0
-				? 'ran successfully'
-				: `failed with code ${code}`
+				? 'Ran successfully.'
+				: `Failed with code ${code}.`
 
-			debug(`${name} ${result}`)
+			debug.runner(name, `${result}`)
 		})
 	}, runner.delay ?? 50)
 }
 
 function getRunnerName(runner: Runner) {
-	return c.bold(`[${runner.name || getRunnerCommand(runner) || '<runner>'}]`)
+	return runner.name || [getRunnerCommand(runner), ...getRunnerArguments(runner)].join(' ') || '<runner>'
 }
 
 function getRunnerArguments(runner: Runner): string[] {
