@@ -75,7 +75,7 @@ function canRunnerRun(runner: Runner, parameters: RunnerHandlerParameters): bool
 
 	const conditionPass = runner.condition?.(file)
 	const patternMatch = patterns.some((pattern) => {
-		pattern = path.resolve(parameters.server.config.root, pattern)
+		pattern = path.resolve(parameters.server.config.root, pattern).replaceAll('\\', '/')
 
 		if (minimatch(file, pattern)) {
 			debug.runner(name, `pattern ${pattern} matched for ${c.gray(parameters.file)}`)
