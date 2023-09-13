@@ -7,4 +7,7 @@ export default defineBuildConfig({
 		'rollup',
 		'vite',
 	],
+	rollup: {
+		emitCJS: true,
+	},
 })
