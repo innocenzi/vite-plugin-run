@@ -1,5 +1,5 @@
-import { spawn } from 'node:child_process'
 import path from 'node:path'
+import execa from 'execa'
 import { loadEnv, Plugin } from 'vite'
 import makeDebugger from 'debug'
 import c from 'picocolors'
@@ -107,7 +107,7 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 }
 
 function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
-	debug.default(`${c.gray(parameters.file)} changed, applying its handler...`)
+	debug.default(`${c.gray(parameters.file)} changed, applying itsss handler...`)
 
 	try {
 		if (typeof runner.onFileChanged === 'function') {
@@ -147,30 +147,18 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 
 	// Runs the runner after the configured delay
 	debug.runner(name, 'Running...')
-	setTimeout(() => {
-		const child = spawn(
+	setTimeout(async() => {
+		const { stdout, failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
-			{ shell: true },
+			{ stdout: options.silent ? 'ignore' : 'pipe' },
 		)
 
-		if (!options.silent) {
-			child.stdout.on('data', (data) => {
-				process.stdout.write(data.toString())
-			})
-
-			child.stderr.on('data', (data) => {
-				process.stdout.write(data.toString())
-			})
+		if (stdout && !options.silent) {
+			process.stdout.write(stdout)
 		}
 
-		child.on('close', (code) => {
-			const result = code === 0
-				? 'Ran successfully.'
-				: `Failed with code ${code}.`
-
-			debug.runner(name, `${result}`)
-		})
+		debug.runner(name, !failed ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
 	}, runner.delay ?? 50)
 }
 
