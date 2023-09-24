@@ -158,12 +158,13 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 			process.stdout.write(stdout)
 		}
 
+		debug.runner(name, stdout)
 		debug.runner(name, !failed ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
 	}, runner.delay ?? 50)
 }
 
 function getRunnerName(runner: Runner) {
-	return runner.name || [getRunnerCommand(runner), ...getRunnerArguments(runner)].join(' ') || '<runner>'
+	return runner.name?.toLowerCase() || [getRunnerCommand(runner), ...getRunnerArguments(runner)].join(' ').toLowerCase() || '<runner>'
 }
 
 function getRunnerArguments(runner: Runner): string[] {
