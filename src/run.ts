@@ -47,7 +47,7 @@ export function run(options: Options = []): Plugin {
 			resolvedOptions.build = config.command === 'build'
 
 			debug.default('Given options:', options)
-			debug.default('Resolved options:', resolvedOptions)
+			debug.default('Resolved options:', { ...resolvedOptions, env: '<hidden>' })
 
 			resolvedOptions.input.forEach((runner) => {
 				if (runner.startup !== false) {
