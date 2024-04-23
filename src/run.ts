@@ -148,17 +148,22 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	// Runs the runner after the configured delay
 	debug.runner(name, 'Running...')
 	setTimeout(async() => {
-		const { stdout, failed, exitCode } = await execa(
+		const { stdout, stderr, failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
-			{ stdout: options.silent ? 'ignore' : 'pipe' },
+			{ stdout: options.silent ? 'ignore' : 'pipe', stderr: options.silent ? 'ignore' : 'pipe' },
 		)
 
 		if (stdout && !options.silent) {
 			process.stdout.write(stdout)
 		}
 
+		if (stdout && !options.silent) {
+			process.stdout.write(stderr)
+		}
+
 		debug.runner(name, stdout)
+		debug.runner(name, stderr)
 		debug.runner(name, !failed ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
 	}, runner.delay ?? 50)
 }
