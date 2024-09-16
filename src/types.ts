@@ -14,7 +14,7 @@ export interface RunOptions {
 	/**
 	 * Hide output of commands
 	 * @default true
-	  */
+	 */
 	silent?: boolean
 
 	/**
@@ -34,8 +34,8 @@ export interface RunnerHandlerParameters {
 
 export interface Runner {
 	/**
-   * Name to identify the runner.
-   */
+	 * Name to identify the runner.
+	 */
 	name?: string
 
 	/**
@@ -71,9 +71,9 @@ export interface Runner {
 	run?: string[] | (() => string[])
 
 	/**
-   * Delay before running the handler is executed (in ms)
-   * @default 50 ms
-   */
+	 * Delay before running the handler is executed (in ms)
+	 * @default 50 ms
+	 */
 	delay?: number
 
 	/**

@@ -1,6 +1,7 @@
 import path from 'node:path'
 import execa from 'execa'
-import { loadEnv, Plugin } from 'vite'
+import type { Plugin } from 'vite'
+import { loadEnv } from 'vite'
 import makeDebugger from 'debug'
 import c from 'picocolors'
 import { toArray } from '@antfu/utils'
@@ -147,7 +148,7 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 
 	// Runs the runner after the configured delay
 	debug.runner(name, 'Running...')
-	setTimeout(async() => {
+	setTimeout(async () => {
 		const { stdout, stderr, failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
