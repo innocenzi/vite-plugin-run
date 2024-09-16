@@ -158,10 +158,6 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 			},
 		)
 
-		if (failed && !options.silent) {
-			console.error(`[Vite Plugin Run] failed to run: [${name}] with code ${exitCode}`)
-		}
-
 		if (stdout && !options.silent) {
 			process.stdout.write(stdout)
 		}
