@@ -151,7 +151,11 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 		const { stdout, stderr, failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
-			{ stdout: options.silent ? 'ignore' : 'pipe', stderr: options.silent ? 'ignore' : 'pipe' },
+			{
+				stdout: options.silent ? 'ignore' : 'pipe',
+				stderr: options.silent ? 'ignore' : 'pipe',
+				reject: false,
+			},
 		)
 
 		if (stdout && !options.silent) {
