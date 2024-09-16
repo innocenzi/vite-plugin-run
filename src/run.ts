@@ -151,8 +151,16 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 		const { stdout, stderr, failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
-			{ stdout: options.silent ? 'ignore' : 'pipe', stderr: options.silent ? 'ignore' : 'pipe' },
+			{
+				stdout: options.silent ? 'ignore' : 'pipe',
+				stderr: options.silent ? 'ignore' : 'pipe',
+				reject: false,
+			},
 		)
+
+		if (failed && !options.silent) {
+			console.error(`[Vite Plugin Run] failed to run: [${name}] with code ${exitCode}`)
+		}
 
 		if (stdout && !options.silent) {
 			process.stdout.write(stdout)
