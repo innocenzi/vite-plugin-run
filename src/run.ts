@@ -149,7 +149,7 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	// Runs the runner after the configured delay
 	debug.runner(name, 'Running...')
 	setTimeout(async () => {
-		const { stdout, stderr, failed, exitCode } = await execa(
+		const { failed, exitCode } = await execa(
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
 			{
@@ -159,8 +159,6 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 			},
 		)
 
-		debug.runner(name, stdout)
-		debug.runner(name, stderr)
 		debug.runner(name, !failed ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
 	}, runner.delay ?? 50)
 }
