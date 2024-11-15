@@ -153,19 +153,11 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 			getExecutable(options, getRunnerCommand(runner)),
 			getRunnerArguments(runner),
 			{
-				stdout: options.silent ? 'ignore' : 'pipe',
-				stderr: options.silent ? 'ignore' : 'pipe',
+				stdout: options.silent ? 'ignore' : 'inherit',
+				stderr: options.silent ? 'ignore' : 'inherit',
 				reject: false,
 			},
 		)
-
-		if (stdout && !options.silent) {
-			process.stdout.write(stdout)
-		}
-
-		if (stdout && !options.silent) {
-			process.stdout.write(stderr)
-		}
 
 		debug.runner(name, stdout)
 		debug.runner(name, stderr)
