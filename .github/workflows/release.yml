@@ -3,7 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   release:
@@ -21,7 +25,7 @@ jobs:
         with:
           node-version: v22
           registry-url: https://registry.npmjs.org/
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - run: npx changelogithub --no-group --no-capitalize --no-emoji
         continue-on-error: true
@@ -36,5 +40,3 @@ jobs:
 
       - name: Publish
         run: pnpm -r publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
