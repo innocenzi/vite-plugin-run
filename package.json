@@ -1,10 +1,11 @@
 {
     "name": "vite-plugin-run",
+    "type": "module",
     "version": "0.7.0",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/innocenzi/vite-plugin-run"
+        "url": "git+https://github.com/innocenzi/vite-plugin-run.git"
     },
     "author": "Enzo Innocenzi",
     "files": [
@@ -13,9 +14,9 @@
     ],
     "exports": {
         ".": {
+            "types": "./dist/index.d.ts",
             "import": "./dist/index.mjs",
-            "require": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.cjs"
         }
     },
     "packageManager": "pnpm@10.33.0",
@@ -35,9 +36,10 @@
     "dependencies": {
         "@antfu/utils": "^9.3.0",
         "debug": "^4.4.3",
-        "execa": "5.1.1",
+        "es-toolkit": "^1.45.1",
         "minimatch": "^10.2.5",
-        "picocolors": "^1.1.1"
+        "picocolors": "^1.1.1",
+        "tinyexec": "^1.1.1"
     },
     "devDependencies": {
         "@innocenzi/eslint-config": "^0.22.8",
@@ -49,10 +51,5 @@
         "unbuild": "^3.6.1",
         "vite": "^8.0.8",
         "vitest": "^4.1.4"
-    },
-    "pnpm": {
-        "overrides": {
-            "execa": "5.1.0"
-        }
     }
 }

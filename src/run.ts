@@ -1,5 +1,6 @@
 import path from 'node:path'
-import execa from 'execa'
+import { debounce } from 'es-toolkit/function'
+import { x } from 'tinyexec'
 import type { Plugin } from 'vite'
 import { loadEnv } from 'vite'
 import makeDebugger from 'debug'
@@ -9,7 +10,7 @@ import { minimatch } from 'minimatch'
 import type { Options, ResolvedRunOptions, Runner, RunnerHandlerParameters } from './types'
 
 const PLUGIN_NAME = 'vite:plugin:run'
-const throttles: Set<string> = new Set()
+const debouncedRunners: WeakMap<Runner, (parameters: RunnerHandlerParameters) => void> = new WeakMap()
 const debug = {
 	default: makeDebugger(PLUGIN_NAME),
 	runner: (name: string, ...debug: [any]) => makeDebugger(`${PLUGIN_NAME}:${name.replaceAll(' ', ':')}`)(...debug),
@@ -103,8 +104,30 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 			return
 		}
 
-		handleRunner(runner, options, parameters)
+		handleDebouncedRunner(runner, options, parameters)
 	})
+}
+
+function handleDebouncedRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
+  const debounceMs = runner.debounce ?? 50
+
+	if (debounceMs === false || debounceMs <= 0) {
+		handleRunner(runner, options, parameters)
+		return
+	}
+
+	let debouncedRunner = debouncedRunners.get(runner)
+
+	if (!debouncedRunner) {
+		debouncedRunner = debounce(
+			(runnerParameters: RunnerHandlerParameters) => handleRunner(runner, options, runnerParameters),
+			debounceMs,
+		)
+
+		debouncedRunners.set(runner, debouncedRunner)
+	}
+
+	debouncedRunner(parameters)
 }
 
 function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
@@ -115,7 +138,7 @@ function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: R
 			runner.onFileChanged?.(parameters)
 		}
 
-		if (Array.isArray(runner.run)) {
+		if (runner.run) {
 			handleRunnerCommand(options, runner)
 		}
 	} catch (error: any) {
@@ -136,31 +159,26 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 		return
 	}
 
-	// Check throttles
-	if (throttles.has(name)) {
-		debug.runner(name, 'Skipping because of throttling.')
-		return
-	}
-
-	// Throttles the runner
-	throttles.add(name)
-	setTimeout(() => throttles.delete(name), runner.throttle ?? 500)
-
-	// Runs the runner after the configured delay
+	// Runs the runner immediately. Debouncing is handled earlier on hot updates.
 	debug.runner(name, 'Running...')
-	setTimeout(async () => {
-		const { failed, exitCode } = await execa(
-			getExecutable(options, getRunnerCommand(runner)),
-			getRunnerArguments(runner),
-			{
-				stdout: options.silent ? 'ignore' : 'inherit',
-				stderr: options.silent ? 'ignore' : 'inherit',
-				reject: false,
-			},
-		)
+	void (async () => {
+		try {
+			const { exitCode } = await x(
+				getExecutable(options, getRunnerCommand(runner)),
+				getRunnerArguments(runner),
+				{
+					nodeOptions: {
+						stdio: options.silent ? 'ignore' : 'inherit',
+					},
+				},
+			)
 
-		debug.runner(name, !failed ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
-	}, runner.delay ?? 50)
+			debug.runner(name, exitCode === 0 ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
+		} catch (error: any) {
+			warn(PLUGIN_NAME, `Runner failed for ${name}: ${error?.message ?? error}`)
+			debug.runner(name, `Full error: ${error?.stack ?? error}`)
+		}
+	})()
 }
 
 function getRunnerName(runner: Runner) {

@@ -70,8 +70,7 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 | `pattern`       | `string` or `string[]`         | A minimatch pattern which files must match                                 |         |
 | `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |
 | `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          |         |
-| `delay`         | `number`                       | Delay before the command is executed                                       | `50`    |
-| `throttle`      | `number`                       | Delay before the command can be re-executed                                | `50`    |
+| `debounce`      | `number`                       | Debounce delay before running the file-change handler and command          | `50`     |
 
 <p align="center">
 	<br />

@@ -71,14 +71,8 @@ export interface Runner {
 	run?: string[] | (() => string[])
 
 	/**
-	 * Delay before running the handler is executed (in ms)
+	 * Delay used to debounce file change handling (in ms)
 	 * @default 50 ms
 	 */
-	delay?: number
-
-	/**
-	 * Delay before the handler can be executed again (in ms)
-	 * @default 500 ms
-	 */
-	throttle?: number
+	debounce?: number | false
 }
