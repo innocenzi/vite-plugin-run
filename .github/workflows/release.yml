@@ -6,8 +6,8 @@ on:
       - "v*"
 
 permissions:
+  contents: write
   id-token: write
-  contents: read
 
 jobs:
   release:
@@ -23,14 +23,9 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v4
         with:
-          node-version: v22
+          node-version: v24
           registry-url: https://registry.npmjs.org/
           cache: "pnpm"
-
-      - run: npx changelogithub --no-group --no-capitalize --no-emoji
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Install dependencies
         run: pnpm install
@@ -39,4 +34,8 @@ jobs:
         run: pnpm run build
 
       - name: Publish
-        run: pnpm -r publish --access public --no-git-checks
+        run: npm publish --provenance --access public
+
+      - run: npx changelogithub --no-group --no-capitalize --no-emoji
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
