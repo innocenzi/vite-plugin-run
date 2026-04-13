@@ -1,16 +1,17 @@
-import path from 'node:path'
+import { toArray } from '@antfu/utils'
+import makeDebugger from 'debug'
 import { debounce } from 'es-toolkit/function'
+import { minimatch } from 'minimatch'
+import path from 'node:path'
+import c from 'picocolors'
 import { x } from 'tinyexec'
 import type { Plugin } from 'vite'
 import { loadEnv } from 'vite'
-import makeDebugger from 'debug'
-import c from 'picocolors'
-import { toArray } from '@antfu/utils'
-import { minimatch } from 'minimatch'
 import type { Options, ResolvedRunOptions, Runner, RunnerHandlerParameters } from './types'
 
 const PLUGIN_NAME = 'vite:plugin:run'
 const debouncedRunners: WeakMap<Runner, (parameters: RunnerHandlerParameters) => void> = new WeakMap()
+
 const debug = {
 	default: makeDebugger(PLUGIN_NAME),
 	runner: (name: string, ...debug: [any]) => makeDebugger(`${PLUGIN_NAME}:${name.replaceAll(' ', ':')}`)(...debug),
@@ -37,9 +38,11 @@ export function run(options: Options = []): Plugin {
 		silent: silent ?? true,
 		skipDts: skipDts ?? true,
 		build: false,
-		input: toArray('input' in options
-			? options.input
-			: options as Runner | Runner[]),
+		input: toArray(
+			'input' in options
+				? options.input
+				: options as Runner | Runner[],
+		),
 	}
 
 	return {
@@ -109,7 +112,7 @@ function handleReload(options: ResolvedRunOptions, parameters: RunnerHandlerPara
 }
 
 function handleDebouncedRunner(runner: Runner, options: ResolvedRunOptions, parameters: RunnerHandlerParameters) {
-  const debounceMs = runner.debounce ?? 50
+	const debounceMs = runner.debounce ?? 50
 
 	if (debounceMs === false || debounceMs <= 0) {
 		handleRunner(runner, options, parameters)
@@ -208,3 +211,5 @@ function getExecutable(options: ResolvedRunOptions, name?: string) {
 
 	return process.env[`${name}_PATH`] || options.env[`${name}_PATH`] || name
 }
+
+export default run

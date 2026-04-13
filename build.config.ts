@@ -1,13 +1,5 @@
-import { defineBuildConfig } from 'unbuild'
+import { defineConfig } from 'tsdown'
 
-export default defineBuildConfig({
-	clean: true,
-	declaration: true,
-	externals: [
-		'rollup',
-		'vite',
-	],
-	rollup: {
-		emitCJS: true,
-	},
+export default defineConfig({
+	entry: 'src/index.ts',
 })

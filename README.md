@@ -21,22 +21,22 @@ Install `vite-plugin-run` and add it to your Vite configuration:
 import { run } from 'vite-plugin-run'
 
 export default defineConfig({
-  plugins: [
-    laravel(),
-      vue(),
-      run([
-        {
-          name: 'typescript transform',
-          run: ['php', 'artisan', 'typescript:transform'],
-          pattern: ['app/**/*Data.php', 'app/**/Enums/**/*.php'],
-        },
-        {
-          name: 'build routes',
-          run: ['php', 'artisan', 'routes:generate'],
-          condition: (file) => file.includes('/routes/'),
-        }
-      ]),
-  ],
+	plugins: [
+		laravel(),
+		vue(),
+		run([
+			{
+				name: 'typescript transform',
+				run: ['php', 'artisan', 'typescript:transform'],
+				pattern: ['app/**/*Data.php', 'app/**/Enums/**/*.php'],
+			},
+			{
+				name: 'build routes',
+				run: ['php', 'artisan', 'routes:generate'],
+				condition: (file) => file.includes('/routes/'),
+			},
+		]),
+	],
 })
 ```
 
@@ -47,7 +47,6 @@ When a file in your project changes, its path will be given as an argument to `c
 &nbsp;
 
 ## Plugin options
-
 
 | Option    | Type       | Description                                             | Default |
 | --------- | ---------- | ------------------------------------------------------- | ------- |
@@ -70,7 +69,7 @@ Optionally, you can directly pass a runner or a list of runner to the plugin opt
 | `pattern`       | `string` or `string[]`         | A minimatch pattern which files must match                                 |         |
 | `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |
 | `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          |         |
-| `debounce`      | `number`                       | Debounce delay before running the file-change handler and command          | `50`     |
+| `debounce`      | `number`                       | Debounce delay before running the file-change handler and command          | `50`    |
 
 <p align="center">
 	<br />
