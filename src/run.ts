@@ -47,18 +47,21 @@ export function run(options: Options = []): Plugin {
 
 	return {
 		name: PLUGIN_NAME,
-		configResolved(config) {
+		async configResolved(config) {
 			resolvedOptions.env = loadEnv(config.mode ?? process.env.NODE_ENV ?? 'development', process.cwd(), '')
 			resolvedOptions.build = config.command === 'build'
 
 			debug.default('Given options:', options)
 			debug.default('Resolved options:', { ...resolvedOptions, env: '<hidden>' })
 
-			resolvedOptions.input.forEach((runner) => {
-				if (runner.startup !== false) {
-					handleRunnerCommand(resolvedOptions, runner)
-				}
-			})
+			const runners = resolvedOptions.input
+				.filter((runner) => runner.startup !== false)
+				.map((runner) => handleRunnerCommand(resolvedOptions, runner))
+
+			// Wait for all runners to finish for a build
+			if (config.command === 'build') {
+				await Promise.all(runners)
+			}
 		},
 		handleHotUpdate({ file, server }) {
 			if (resolvedOptions.skipDts && file.endsWith('.d.ts')) {
@@ -142,7 +145,7 @@ function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: R
 		}
 
 		if (runner.run) {
-			handleRunnerCommand(options, runner)
+			handleRunnerCommand(options, runner).then(() => {})
 		}
 	} catch (error: any) {
 		warn(PLUGIN_NAME, `Handler failed for ${parameters.file}: ${error.message}`)
@@ -150,7 +153,7 @@ function handleRunner(runner: Runner, options: ResolvedRunOptions, parameters: R
 	}
 }
 
-function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
+async function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 	if (!runner.run) {
 		return
 	}
@@ -164,24 +167,22 @@ function handleRunnerCommand(options: ResolvedRunOptions, runner: Runner) {
 
 	// Runs the runner immediately. Debouncing is handled earlier on hot updates.
 	debug.runner(name, 'Running...')
-	void (async () => {
-		try {
-			const { exitCode } = await x(
-				getExecutable(options, getRunnerCommand(runner)),
-				getRunnerArguments(runner),
-				{
-					nodeOptions: {
-						stdio: options.silent ? 'ignore' : 'inherit',
-					},
+	try {
+		const { exitCode } = await x(
+			getExecutable(options, getRunnerCommand(runner)),
+			getRunnerArguments(runner),
+			{
+				nodeOptions: {
+					stdio: options.silent ? 'ignore' : 'inherit',
 				},
-			)
+			},
+		)
 
-			debug.runner(name, exitCode === 0 ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
-		} catch (error: any) {
-			warn(PLUGIN_NAME, `Runner failed for ${name}: ${error?.message ?? error}`)
-			debug.runner(name, `Full error: ${error?.stack ?? error}`)
-		}
-	})()
+		debug.runner(name, exitCode === 0 ? 'Ran successfully.' : `Failed with code ${exitCode}.`)
+	} catch (error: any) {
+		warn(PLUGIN_NAME, `Runner failed for ${name}: ${error?.message ?? error}`)
+		debug.runner(name, `Full error: ${error?.stack ?? error}`)
+	}
 }
 
 function getRunnerName(runner: Runner) {
